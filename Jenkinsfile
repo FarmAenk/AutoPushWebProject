@@ -18,7 +18,9 @@ pipeline {
         }
         stage('Deploy Locally') {
             steps {
-                sh 'docker compose up -d --force-recreate'
+		sh 'docker compose stop'
+        	sh 'docker compose rm -f'
+        	sh 'docker compose up -d --force-recreate'
             }
         }
     }
