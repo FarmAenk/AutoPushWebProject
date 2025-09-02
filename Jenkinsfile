@@ -11,11 +11,13 @@ pipeline {
                 echo "Checking out code..."
             }
         }
+
         stage('Build Docker Image') {
             steps {
- 		sh "docker build --build-arg CACHEBUSTER=$(date +%s) -t chat-app:${env.BUILD_NUMBER} ."
+		sh "docker build --build-arg CACHEBUSTER=\$(date +%s) -t chat-app:${env.BUILD_NUMBER} ."
             }
         }
+
         stage('Deploy Locally') {
             steps {
 		sh 'docker compose stop'
