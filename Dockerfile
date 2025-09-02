@@ -1,27 +1,21 @@
-# Stage 1: Build dependencies
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copy dependency files first
-COPY package.json package-lock.json ./
-
-# Install dependencies. This will be cached unless dependency files change.
-RUN npm install
-
-# Copy the rest of your application code
-COPY . .
-
-# Stage 2: Production image
+# Use a Node.js base image
 FROM node:20-alpine
 
+# Set the working directory
 WORKDIR /app
 
-# Copy only the necessary files for production
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/index.js .
-COPY --from=builder /app/index.html .
+# Copy package.json and package-lock.json first to use the cache
+COPY package.json package-lock.json ./
 
+# Install dependencies
+RUN npm install
+
+# Copy all your application files. This step will not be cached
+# if any of your files (like index.html) have changed.
+COPY . .
+
+# Expose the application port
 EXPOSE 3000
 
+# Start the application
 CMD ["node", "index.js"]
