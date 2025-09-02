@@ -1,33 +1,74 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO cha v0.0.3 with ngrok update V.7</title>
+    <title>Socket.IO chat v0.0.3 with ngrok update V.7</title>
     <style>
       :root {
-        --background-color: #f0f2f5;
-        --primary-color: #007bff;
-        --text-color: #333;
+        --background-color: #fff;
+        --primary-color: #0084ff;
+        --text-color: #000;
         --white-color: #fff;
         --border-color: #ddd;
-        --message-bg-color: #e9e9eb;
+        --message-bg-color: #f0f0f0;
+        --my-message-bg-color: #0084ff;
+        --their-message-bg-color: #f0f0f0;
       }
 
       body {
         margin: 0;
-        padding-bottom: 3rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
         background-color: var(--background-color);
         color: var(--text-color);
       }
 
+      #chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      #header {
+        background: var(--white-color);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #messages {
+        flex-grow: 1;
+        list-style-type: none;
+        margin: 0;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+
+      #messages > li {
+        padding: 0.5rem 1rem;
+        border-radius: 1.5rem;
+        margin-bottom: 0.5rem;
+        max-width: 60%;
+        word-wrap: break-word;
+        line-height: 1.4;
+      }
+
+      .my-message {
+        background: var(--my-message-bg-color);
+        color: var(--white-color);
+        align-self: flex-end;
+        margin-left: auto;
+      }
+
+      .their-message {
+        background: var(--their-message-bg-color);
+        align-self: flex-start;
+      }
+
       #form {
         background: var(--white-color);
         padding: 0.5rem;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
         display: flex;
         height: 3.5rem;
         box-sizing: border-box;
@@ -35,62 +76,38 @@
       }
 
       #input {
-        border: 1px solid var(--border-color);
+        border: none;
         padding: 0 1rem;
         flex-grow: 1;
         border-radius: 2rem;
-        margin: 0.25rem;
+        background-color: #f0f0f0;
         font-size: 1rem;
       }
 
       #input:focus {
         outline: none;
-        border-color: var(--primary-color);
       }
 
       #form > button {
-        background: var(--primary-color);
+        background: transparent;
         border: none;
-        padding: 0 1.5rem;
-        margin: 0.25rem;
-        border-radius: 2rem;
+        padding: 0 1rem;
+        margin: 0 0.25rem;
         outline: none;
-        color: var(--white-color);
-        font-size: 1rem;
+        color: var(--primary-color);
+        font-size: 1.5rem;
         cursor: pointer;
-      }
-
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 1rem;
-      }
-
-      #messages > li {
-        padding: 0.75rem 1rem;
-        border-radius: 1rem;
-        margin-bottom: 0.5rem;
-        max-width: 80%;
-        word-wrap: break-word;
-      }
-
-      #messages > li:nth-child(odd) {
-        background: var(--message-bg-color);
-        align-self: flex-start;
-      }
-
-      #messages > li:nth-child(even) {
-        background: var(--primary-color);
-        color: var(--white-color);
-        align-self: flex-end;
       }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" placeholder="Type a message..." /><button>Send</button>
-    </form>
+    <div id="chat-container">
+      <div id="header">Messenger</div>
+      <ul id="messages"></ul>
+      <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Type a message..." /><button>&#x27A4;</button>
+      </form>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
@@ -103,16 +120,22 @@
         e.preventDefault();
         if (input.value) {
           socket.emit("chat message", input.value);
+          addMessage(input.value, true);
           input.value = "";
         }
       });
 
       socket.on("chat message", function (msg) {
+        addMessage(msg, false);
+      });
+
+      function addMessage(msg, isMyMessage) {
         var item = document.createElement("li");
         item.textContent = msg;
+        item.classList.add(isMyMessage ? 'my-message' : 'their-message');
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
-      });
+      }
     </script>
   </body>
 </html>
