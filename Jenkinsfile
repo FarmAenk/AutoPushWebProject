@@ -12,9 +12,18 @@ pipeline {
             }
         }
 
+	stage('Clean Up') {
+    		steps {
+        		echo "Cleaning up old Docker images..."
+        		// This command removes any untagged (dangling) images
+        		sh 'docker image prune -f'
+        		// This command removes all images with the 'chat-app' tag that are not currently in use
+        		sh 'docker rmi $(docker images --filter "reference=chat-app:*" -q) || true'
+    		}
+	}
         stage('Build Docker Image') {
             steps {
-		sh "docker build --build-arg CACHEBUSTER=\$(date +%s) -t chat-app:${env.BUILD_NUMBER} ."
+		sh "docker build --build-arg CACHEBUSTER=\$(date +%s) -t chat-app-pipeline-web:latest ."
             }
         }
 
